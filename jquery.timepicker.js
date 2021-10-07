@@ -119,9 +119,16 @@
 
                 while(time < end) {
                     if (widget._isValidTime(i, time)) {
+                        var timeText = $.fn.timepicker.formatTime(i.options.timeFormat, time);
+                        
                         item = $('<li>').addClass('ui-menu-item').appendTo(ul);
-                        $('<a>').addClass('ui-corner-all').text($.fn.timepicker.formatTime(i.options.timeFormat, time)).appendTo(item);
+                        $('<a>').addClass('ui-corner-all').text(timeText).appendTo(item);
                         item.data('time-value', time);
+                        if(i.options.dislabledTimes.includes(timeText))
+                            {
+                                item.addClass('disabled').click(false);
+                                item.find('a').addClass('disabled').click(false);
+                            }
                     }
                     time = new Date(time.getTime() + i.options.interval * 60 * 1000);
                 }
@@ -304,10 +311,11 @@
                         widget.ui.scrollTop(scroll + offset - height + item.height());
                     }
                 }
-
+                if(!item.eq(0).hasClass('disabled'))
+                    {
                 widget.active = item.eq(0).children('a').addClass('ui-state-hover')
                                                         .attr('id', 'ui-active-item')
-                                          .end();
+                                          .end();}
             },
 
             deactivate: function() {
@@ -405,6 +413,11 @@
                             widget.deactivate(i);
                         }).bind('click.timepicker', function(event) {
                             event.preventDefault();
+                            if($(this).parent().hasClass('disabled')) 
+                            {
+                                console.log('disabled');
+                                return false;
+                            }
                             widget.select(i, $(this).parent());
                         });
                     } else {
@@ -480,7 +493,7 @@
                 if (selectedTime) {
                     i.items.each(function() {
                         var item = $(this), time;
-
+                       
                         if ($.fn.jquery < '1.4.2') {
                             time = $.fn.timepicker.parseTime(item.find('a').text());
                         } else {
@@ -642,6 +655,7 @@
             zindex: null,
             dropdown: true,
             scrollbar: false,
+            dislabledTimes: [],
             // callbacks
             change: function(/*time*/) {}
         };
@@ -861,4 +875,4 @@
             };
         })();
     })();
-}));
+}));// JavaScript Document
